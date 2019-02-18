@@ -1,0 +1,5 @@
+Starting Program
+Opened the configuration text file
+Closed the configuration text file
+Ending Program
+Deconstructing data loader
