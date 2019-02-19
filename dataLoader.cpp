@@ -8,19 +8,17 @@
 using namespace std;
 //Initializes the matricies for the data with the number of rows and number of collumns
 //not actual matricies used, this is just a proof of concept
+//look at the matlab/utilities/misc/getData.m
 void initDataMatricies(ILPData *data, int nr, int nc)
 {
-	MatrixXd A(nr, nc), b(nr, 1), c(nr, 1), A_eq(nr, 1);
-	
-	/*A = MatrixXd::Identity(nr, nc);
-	b = MatrixXd::Identity(nr, 1);
-	c = MatrixXd::Identity(nc, 1);
-	A_eq = MatrixXd::Identity(nr, nc);*/
+	MatrixXd A(nr, nc);
+	VectorXd b(nr), c(nc), A_eq(nr);
 
 	data->A = A;
 	data->b = b;
 	data->c = c;
 	data->A_eq = A_eq;
+
 }
 //reads in the data and outputs it through the parameter
 void dataLoader::readFile(ILPData *data) 
@@ -40,34 +38,31 @@ void dataLoader::readFile(ILPData *data)
 		if (cmd == "A:") {
 			//printing out the matrix
 			for (int i = 0; i < y; i++) {
-				//cout << "|";
 				for (int j = 0; j < x; j++) {
 					matrixFile >> input;
 					data->A(j, i) = stoi(input);
-					//cout << input << " ";
 				}
-				//cout << "|" << endl;
 			}
 			cout << cmd << endl << data->A << endl;
 		}
 		else if (cmd == "b:") {
 			for (int i = 0; i < x; i++) {
 				matrixFile >> input;
-				data->b(i, 0) = stoi(input);
+				data->b(i) = stoi(input);
 			}
 			cout << cmd << endl << data->b << endl;
 		}
 		else if (cmd == "c:") {
 			for (int i = 0; i < y; i++) {
 				matrixFile >> input;
-				data->c(i, 0) = stoi(input);
+				data->c(i) = stoi(input);
 			}
 			cout << cmd << endl << data->c << endl;
 		}
 		else if (cmd == "A_eq:") {
 			for (int i = 0; i < x; i++) {
 				matrixFile >> input;
-				data->A_eq(i, 0) = stoi(input);
+				data->A_eq(i) = stoi(input);
 			}
 			cout << cmd << endl << data->A_eq << endl;
 		}
@@ -75,7 +70,6 @@ void dataLoader::readFile(ILPData *data)
 			Logger::getInstance().logInfo("Error: command not found");
 		}
 	}
-	//cout << cmd << endl;
 	matrixFile.close();
 	Logger::getInstance().logInfo("Closed the configuration text file");
 }
