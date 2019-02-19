@@ -7,10 +7,14 @@
 
 using namespace std;
 
+
+
 int main(int argc, char *argv[])
 {
 	Logger::getInstance().logInfo("Starting Program");
 	dataLoader dataLoad;
+	struct ILPData data;
+	dataLoad.readFile(&data);
 	Logger::getInstance().logInfo("Ending Program");
 	return 0;
 }

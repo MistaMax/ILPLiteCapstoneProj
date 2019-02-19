@@ -1,4 +1,5 @@
 Starting Program
+Initialized data loader
 Opened the configuration text file
 Closed the configuration text file
 Ending Program
