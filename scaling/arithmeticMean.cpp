@@ -1,10 +1,12 @@
 #include <vector>
 #include "ScalingMisc.h"
+#include <Eigen/Dense>
+#include "ILPData.h"
 
 using namespace std;
-using namespace scaling;
+using namespace Eigen;
 
-void arithmeticMean(ILPData data) 
+void arithmeticMean(ILPData data)
 {
 	vector<int> ind;
 	int m = data.A.rows();
@@ -24,7 +26,7 @@ void arithmeticMean(ILPData data)
 		}
 		if(!ind.empty()) 
 		{
-			row_sum(i) = data.A.row(i).abs().sum();
+			row_sum(i) = sum_abs(data.A.row(i), &ind);
 			data.row_multi(i) = ind.size() / row_sum(i);
 			data.A.row(i) = data.A.row(i) * data.row_multi(i);
 			data.b(i) = data.b(i) * data.row_multi(i);
@@ -41,7 +43,7 @@ void arithmeticMean(ILPData data)
 		}
 		if (!ind.empty())
 		{
-			col_sum(i) = data.A.col(i).abs().sum();
+			col_sum(i) = sum_abs(data.A.col(i), &ind);
 			data.col_multi(i) = ind.size() / col_sum(i);
 			data.A.col(i) = data.A.col(i) * data.col_multi(i);
 			data.c(i) = data.c(i) * data.col_multi(i);

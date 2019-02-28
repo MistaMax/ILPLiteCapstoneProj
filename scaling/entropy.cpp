@@ -1,39 +1,52 @@
 #include <vector>
-using namespace std;
+#include "ScalingMisc.h"
+#include <Eigen/Dense>
+#include "ILPData.h"
 
-void arithmeticMean(ILPData data)
+using namespace std;
+using namespace Eigen;
+
+void entropy(ILPData data)
 {
 	vector<int> ind;
 	int m = data.A.rows();
 	int n = data.A.cols();
 
 	RowVectorXd row_sum(m);
-	RowVectorXd row_multi(m);
-
 	RowVectorXd col_sum(n);
-	RowVectorXd col_multi(n);
 
 	for (int i = 0; i < m; i++) {
 		//find nonzero elements of a row
-		ind = find_NonZero(data.A.row(i));
+		//ind = find_NonZero(data.A.row(i));
+		ind.clear();
+		for (int j = 0; j < data.A.cols(); j++)
+		{
+			if (data.A(i, j) != 0)
+				ind.push_back(j);
+		}
 		if (!ind.empty())
 		{
-			row_sum(i) = sum_abs(data.A.row(i), ind);
-			row_multi(i) = ind.size() / row_sum(i);
-			data.A.row(i) = data.A.row(i) * row_multi(i);
-			data.b(i) = data.b(i) * row_multi(i);
+			row_sum(i) = sum_abs(data.A.row(i), &ind);
+			data.row_multi(i) = ind.size() / row_sum(i);
+			data.A.row(i) = data.A.row(i) * data.row_multi(i);
+			data.b(i) = data.b(i) * data.row_multi(i);
 		}
 	}
 
 	for (int i = 0; i < n; i++) {
 		//find nonzero elements of a row
-		ind = find_NonZero(data.A.col(i));
+		//ind = find_NonZero(data.A.col(i));
+		for (int j = 0; j < data.A.cols(); j++)
+		{
+			if (data.A(j, i) != 0)
+				ind.push_back(j);
+		}
 		if (!ind.empty())
 		{
-			col_sum(i) = sum_abs(data.A.col(i), ind);
-			col_multi(i) = ind.size() / col_sum(i);
-			data.A.col(i) = data.A.col(i) * col_multi(i);
-			data.c(i) = data.c(i) * col_multi(i);
+			col_sum(i) = sum_abs(data.A.col(i), &ind);
+			data.col_multi(i) = ind.size() / col_sum(i);
+			data.A.col(i) = data.A.col(i) * data.col_multi(i);
+			data.c(i) = data.c(i) * data.col_multi(i);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 #include <vector>
-#include <math.h>
+#include "ScalingMisc.h"
+#include <Eigen/Dense>
+#include "ILPData.h"
 
 using namespace std;
 
@@ -11,35 +13,33 @@ void debuchet_p2(ILPData data)
 
 	RowVectorXd row_max(m);
 	RowVectorXd row_min(m);
-	RowVectorXd row_multi(m);
 
 	RowVectorXd col_max(n);
 	RowVectorXd col_min(n);
-	RowVectorXd col_multi(n);
 
 	for (int i = 0; i < m; i++) {
 		//find nonzero elements of a row
-		ind = find_NonZero(data.A.row(i));
+		find_NonZero(data.A.row(i),&ind);
 		if (!ind.empty())
 		{
-			row_max(i) = max_abs(data.A.row(i), ind);
-			row_min(i) = min_abs(data.A.row(i), ind);
-			row_multi(i) = 1/ pow(row_max(i) * row_min(i), .5);
-			data.A.row(i) = data.A.row(i) * row_multi(i);
-			data.b(i) = data.b(i) * row_multi(i);
+			row_max(i) = max_abs(data.A.row(i), &ind);
+			row_min(i) = min_abs(data.A.row(i), &ind);
+			data.row_multi(i) = 1/ pow(row_max(i) * row_min(i), .5);
+			data.A.row(i) = data.A.row(i) * data.row_multi(i);
+			data.b(i) = data.b(i) * data.row_multi(i);
 		}
 	}
 
 	for (int i = 0; i < n; i++) {
 		//find nonzero elements of a row
-		ind = find_NonZero(data.A.col(i));
+		find_NonZero(data.A.col(i),&ind);
 		if (!ind.empty())
 		{
-			col_max(i) = max_abs(data.A.col(i), ind);
-			col_min(i) = min_abs(data.A.col(i), ind);
-			col_multi(i) = 1/ pow(col_max(i) * col_min(i), .5);
-			data.A.col(i) = data.A.col(i) * col_multi(i);
-			data.c(i) = data.c(i) * col_multi(i);
+			col_max(i) = max_abs(data.A.col(i), &ind);
+			col_min(i) = min_abs(data.A.col(i), &ind);
+			data.col_multi(i) = 1/ pow(col_max(i) * col_min(i), .5);
+			data.A.col(i) = data.A.col(i) * data.col_multi(i);
+			data.c(i) = data.c(i) * data.col_multi(i);
 		}
 	}
 }
