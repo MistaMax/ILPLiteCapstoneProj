@@ -10,8 +10,12 @@ class Logger
 public:
 	static Logger& getInstance();
 	static void logInfo(string info);
+	static void setLoggerWriteState(bool writeState);
+	static void setConsoleDisplayState(bool displayState);
 private:
-	static ofstream& getLoggerFile();
+	static ofstream loggerFile;
+	static bool write;
+	static bool display;
 	Logger();
 	~Logger();
 public:

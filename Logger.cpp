@@ -1,7 +1,12 @@
 #include "pch.h"
 #include "Logger.h"
 
+
 using namespace std;
+bool Logger::write;
+bool Logger::display;
+ofstream Logger::loggerFile;
+
 Logger& Logger::getInstance()
 {
 	static Logger instance;
@@ -10,18 +15,26 @@ Logger& Logger::getInstance()
 
 void Logger::logInfo(string info) 
 {
-	getLoggerFile() << info << endl;
+	if(write)
+		loggerFile << info << endl;
+	if (display)
+		cout << info << endl;
 }
 
-ofstream& Logger::getLoggerFile() {
-	static ofstream loggerFile;
-	return loggerFile;
+void Logger::setLoggerWriteState(bool writeState) {
+	write = writeState;
+}
+
+void Logger::setConsoleDisplayState(bool displayState) {
+	display = displayState;
 }
 
 Logger::Logger() {
-	getLoggerFile().open("log.txt");
+	loggerFile.open("log.txt");
+	write = true;
+	display = true;
 }
 
 Logger::~Logger() {
-	getLoggerFile().close();
+	loggerFile.close();
 }

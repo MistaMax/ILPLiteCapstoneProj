@@ -1,6 +1,22 @@
 Starting Program
 Initialized data loader
-Opened the configuration text file
-Closed the configuration text file
+Opened the data text file
+A:
+5 5 
+2 3 
+
+b:
+20
+24
+
+c:
+-2
+-9
+
+A_eq:
+-1
+-1
+
+Closed the data text file
 Ending Program
 Deconstructing data loader

@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "dataLoader.h"
 #include "Logger.h"
+#include "presolve/presolve.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ int main(int argc, char *argv[])
 	dataLoader dataLoad;
 	ILPData data;
 	dataLoad.readFile(&data);
+	presolve(&data);
 	Logger::getInstance().logInfo("Ending Program");
 	return 0;
 }

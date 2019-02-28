@@ -25,6 +25,7 @@ typedef struct ILPData {
 	Matrix<double, Dynamic, Dynamic, 0, 10, 1> c;
 	Matrix<double, Dynamic, Dynamic, 0, 10, 10> A_eq;
 	Matrix<double, Dynamic, Dynamic, 0, 10, 1> b_eq;
+	double c0;
 	Matrix<double, Dynamic, Dynamic, 0, 10, 1> lb;
 	Matrix<double, Dynamic, Dynamic, 0, 10, 1> ub;
 	Matrix<double, Dynamic, Dynamic, 0, 10, 1> x0;
