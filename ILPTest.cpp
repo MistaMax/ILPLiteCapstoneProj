@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	dataLoader dataLoad;
 	ILPData data;
 	dataLoad.readFile(&data);
-	presolve(&data);
+	//presolve(&data);
 	Logger::getInstance().logInfo("Ending Program");
 	return 0;
 }
