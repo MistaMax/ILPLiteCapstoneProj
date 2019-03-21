@@ -19,27 +19,67 @@ using namespace Eigen;
 //               -data.x0 : m - by - 1 initial solution vector
 //               -data.bv : n - by - 1 basic variables vector
 //               -data.intCon : n - by - 1 logical vector of integer constraints
+
+typedef SparseMatrix<double> SpMat;
+typedef SparseVector<double> SpVec;
+typedef Triplet<double> Trip;
+
+typedef Matrix<double, Dynamic, Dynamic, 0, 10, 10> DenMat;
+typedef Matrix<double, Dynamic, Dynamic, 0, 10, 1> DenVec;
+//Currently using dense matricies for storage, these typedefs will allow us to change the storage to sparse matricies
+//when I figure out how to declare a dynamic sparse matrix at compile time
+//dense matrix
+/*
+typedef Matrix<double, Dynamic, Dynamic, 0, 10, 10> Mat;
+typedef Matrix<double, Dynamic, Dynamic, 0, 10, 1> Vec;
+*/
+//just testing the datastructure out
 typedef struct ILPData {
-	Matrix<double, Dynamic, Dynamic, 0, 10, 10> A;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> b;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> c;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 10> A_eq;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> b_eq;
+	SpMat A;
+	SpVec b;
+	SpVec c;
+	SpMat A_eq;
+	SpVec b_eq;
 	double c0;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> lb;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> ub;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> x0;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> bv;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> intCon;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> row_multi;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> col_multi;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> row_multieq;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> col_multieq;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> BasicList;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> NonBasicList;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 10> BasisInv;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> S_n;
-	Matrix<double, Dynamic, Dynamic, 0, 10, 1> x_bar;
+	SpVec lb;
+	SpVec ub;
+	SpVec x0;
+	SpVec bv;
+	SpVec intCon;
+	SpVec row_multi;
+	SpVec col_multi;
+	SpVec row_multieq;
+	SpVec col_multieq;
+	SpVec BasicList;
+	SpVec NonBasicList;
+	SpMat BasisInv;
+	SpVec S_n;
+	SpVec x_bar;
 	int pivot;
 	int iter;
 }ILPData;
+
+typedef struct ILPDenseData {
+	DenMat A;
+	DenVec b;
+	DenVec c;
+	DenMat A_eq;
+	DenVec b_eq;
+	double c0;
+	DenVec lb;
+	DenVec ub;
+	DenVec x0;
+	DenVec bv;
+	DenVec intCon;
+	DenVec row_multi;
+	DenVec col_multi;
+	DenVec row_multieq;
+	DenVec col_multieq;
+	DenVec BasicList;
+	DenVec NonBasicList;
+	DenMat BasisInv;
+	DenVec S_n;
+	DenVec x_bar;
+	int pivot;
+	int iter;
+}ILPDenseData;

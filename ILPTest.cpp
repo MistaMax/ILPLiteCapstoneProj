@@ -5,10 +5,9 @@
 #include "dataLoader.h"
 #include "Logger.h"
 #include "presolve/presolve.h"
+#include "testRunner.h"
 
 using namespace std;
-
-
 
 int main(int argc, char *argv[])
 {
@@ -16,10 +15,13 @@ int main(int argc, char *argv[])
 	dataLoader dataLoad;
 	ILPData data;
 	dataLoad.readFile(&data);
+	runTests(&data);
 	//presolve(&data);
 	Logger::getInstance().logInfo("Ending Program");
 	return 0;
 }
+
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

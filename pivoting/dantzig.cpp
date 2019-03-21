@@ -5,6 +5,7 @@
  *      Author: Devin Nguyen
  */
 
+#include "pch.h"
 #include <vector>
 #include <Eigen>
 int dantzig(Eigen::VectorXd S_n){

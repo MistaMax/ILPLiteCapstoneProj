@@ -1,3 +1,4 @@
+#include "pch.h"
 #include <vector>
 #include "scaling.h"
 #include <Eigen/Dense>

@@ -5,12 +5,12 @@
  *      Author: Devin Nguyen
  */
 
-
+#include "pch.h"
 #include <iostream>
 #include <Eigen/Dense>
 #include <vector>
 
-
+using namespace std;
 
 int bland(Eigen::VectorXd S_n, Eigen::VectorXi NonBasicList){
 	std::vector<Eigen::Index> idxs;
@@ -22,7 +22,7 @@ int bland(Eigen::VectorXd S_n, Eigen::VectorXi NonBasicList){
 		}
 	}
 	// Unsure if this next line will work
-	int first, second = std::min_element(std::begin(idxs), std::end(idxs));
+	int first, second = min_element(begin(idxs), end(idxs));
 
 	return idxs(second);
 }

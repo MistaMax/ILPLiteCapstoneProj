@@ -2,6 +2,7 @@
 #include "dataLoader.h"
 #include "Logger.h"
 #include <fstream>
+#include <vector>
 
 
 
@@ -10,7 +11,7 @@ using namespace std;
 //Initializes the matricies for the data with the number of rows and number of collumns
 //not actual matricies used, this is just a proof of concept
 //look at the matlab/utilities/misc/getData.m
-void initDataMatricies(ILPData *data, int nr, int nc)
+void initDataMatricies(ILPDenseData *data, int nr, int nc)
 {
 	MatrixXd A(nr, nc);
 	VectorXd b(nr), c(nc), A_eq(nr), b_Eq(nc), lb(nr);
@@ -23,9 +24,22 @@ void initDataMatricies(ILPData *data, int nr, int nc)
 	//set defaults for the rest of the values here
 	//check getData.m for a basic idea
 }
+
+void convertToSparse(ILPDenseData *denseData, ILPData *sparseData) {
+	Logger::getInstance().logInfo("Starting conversion from Dense to Sparse");
+	sparseData->A = denseData->A.sparseView();
+	sparseData->b = denseData->b.sparseView();
+	sparseData->c = denseData->c.sparseView();
+	sparseData->A_eq = denseData->A_eq.sparseView();
+	sparseData->c0 = denseData->c0;
+	Logger::getInstance().logInfo("Ending conversion from Dense to Sparse");
+}
 //reads in the data and outputs it through the parameter
-void dataLoader::readFile(ILPData *data) 
+
+void dataLoader::readFile(ILPData *sparseData) 
 {
+	ILPDenseData data;
+
 	ifstream configFile;
 	string input, cmd;
 
@@ -34,14 +48,14 @@ void dataLoader::readFile(ILPData *data)
 		cmd = input;
 		if (cmd == "display:") {
 			configFile >> input;
-			if (stoi(input) == 1)
+			if (stod(input) == 1)
 				Logger::getInstance().setConsoleDisplayState(true);
 			else
 				Logger::getInstance().setConsoleDisplayState(false);
 		}
 		else if (cmd == "console:") {
 			configFile >> input;
-			if (stoi(input) == 1)
+			if (stod(input) == 1)
 				Logger::getInstance().setLoggerWriteState(true);
 			else
 				Logger::getInstance().setLoggerWriteState(false);
@@ -52,10 +66,10 @@ void dataLoader::readFile(ILPData *data)
 	matrixFile.open("inputData.txt");
 	Logger::getInstance().logInfo("Opened the data text file");
 	matrixFile >> input;
-	int x = stoi(input);
+	int x = stod(input);
 	matrixFile >> input;
-	int y = stoi(input);
-	initDataMatricies(data, y, x);
+	int y = stod(input);
+	initDataMatricies(&data, y, x);
 	string mat;
 	while (matrixFile >> input) {
 		cmd = input;
@@ -66,8 +80,8 @@ void dataLoader::readFile(ILPData *data)
 			for (int i = 0; i < y; i++) {
 				for (int j = 0; j < x; j++) {
 					matrixFile >> input;
-					data->A(j, i) = stoi(input);
-					mat += to_string(stoi(input)) + " ";
+					data.A(i, j) = stod(input);
+					mat += to_string(stod(input)) + " ";
 				}
 				mat += "\n";
 			}
@@ -75,22 +89,22 @@ void dataLoader::readFile(ILPData *data)
 		else if (cmd == "b:") {
 			for (int i = 0; i < x; i++) {
 				matrixFile >> input;
-				data->b(i) = stoi(input);
-				mat += to_string(stoi(input)) + "\n";
+				data.b(i) = stod(input);
+				mat += to_string(stod(input)) + "\n";
 			}
 		}
 		else if (cmd == "c:") {
 			for (int i = 0; i < y; i++) {
 				matrixFile >> input;
-				data->c(i) = stoi(input);
-				mat += to_string(stoi(input)) + "\n";
+				data.c(i) = stod(input);
+				mat += to_string(stod(input)) + "\n";
 			}
 		}
 		else if (cmd == "A_eq:") {
 			for (int i = 0; i < x; i++) {
 				matrixFile >> input;
-				data->A_eq(i) = stoi(input);
-				mat += to_string(stoi(input)) + "\n";
+				data.A_eq(i) = stod(input);
+				mat += to_string(stod(input)) + "\n";
 			}
 		}
 		else {
@@ -100,6 +114,7 @@ void dataLoader::readFile(ILPData *data)
 	}
 	matrixFile.close();
 	Logger::getInstance().logInfo("Closed the data text file");
+	convertToSparse(&data, sparseData);
 }
 
 dataLoader::dataLoader()
