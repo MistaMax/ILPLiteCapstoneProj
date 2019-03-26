@@ -5,24 +5,20 @@
  *      Author: Devin Nguyen
  */
 
-#include "pch.h"
+
 #include <iostream>
-#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <vector>
 
 using namespace std;
+using namespace Eigen;
 
-int bland(Eigen::VectorXd S_n, Eigen::VectorXi NonBasicList){
-	std::vector<Eigen::Index> idxs;
-	//Eigen::VectorXi::Index idxs;
-	for(Eigen::Index i = 0; i < S_n.size(); i++){
-		if(S_n(i) < 0){
-			//Add indices to list
-			idxs.push_back(i);
-		}
-	}
-	// Unsure if this next line will work
-	int first, second = min_element(begin(idxs), end(idxs));
-
-	return idxs(second);
+Index bland(SparseVector<double> S_n, SparseVector<double> NonBasicList){
+	//Check for all non-zero values
+	Index nonZeros = S_n.nonZeros();
+	Index rowIdx;
+	//Find the smallest value
+	double value = VectorXd::Map(NonBasicList.valuePtr(),nonZeros).minCoeff(&rowIdx);
+	//Return the Eigen::Index of the entering variable
+	return NonBasicList.innerIndexPtr()[rowIdx];
 }
