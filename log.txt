@@ -20,5 +20,9 @@ A_eq:
 Closed the data text file
 Starting conversion from Dense to Sparse
 Ending conversion from Dense to Sparse
+
+
+>>>> Revised Primal Simplex <<<<
+
 Ending Program
 Deconstructing data loader
