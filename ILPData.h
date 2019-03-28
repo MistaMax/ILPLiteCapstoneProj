@@ -38,7 +38,7 @@ typedef struct ILPData {
 	SpMat A;
 	SpVec b;
 	SpVec c;
-	SpMat A_eq;
+	SpVec Eq;
 	SpVec b_eq;
 	double c0;
 	SpVec lb;
@@ -63,7 +63,7 @@ typedef struct ILPDenseData {
 	DenMat A;
 	DenVec b;
 	DenVec c;
-	DenMat A_eq;
+	DenVec Eq;
 	DenVec b_eq;
 	double c0;
 	DenVec lb;

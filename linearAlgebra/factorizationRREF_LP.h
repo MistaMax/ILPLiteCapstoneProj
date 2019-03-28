@@ -2,5 +2,7 @@
 #include <iostream>
 #include <string>
 #include "../ILPData.h"
+#include "../matrixTools/matrixTools.h"
 
-int factorizationRREF_LP(SpMat *A, SpVec *b, SpMat *A_eq, int tol, int *out, SpMat *j_b);
+void addEqualityToRowIdx(SpMat *rowIdx, SpVec *a0, int m);
+int factorizationRREF_LP(SpMat *A, SpVec *b, SpMat *Eq, int tol, matrixIndexList *out, SpMat *j_b);

@@ -14,12 +14,12 @@ using namespace std;
 void initDataMatricies(ILPDenseData *data, int nr, int nc)
 {
 	MatrixXd A(nr, nc);
-	VectorXd b(nr), c(nc), A_eq(nr), b_Eq(nc), lb(nr);
+	VectorXd b(nr), c(nc), Eq(nr), b_Eq(nc), lb(nr);
 
 	data->A = A;
 	data->b = b;
 	data->c = c;
-	data->A_eq = A_eq;
+	data->Eq = Eq;
 	data->c0 = 0;
 	//set defaults for the rest of the values here
 	//check getData.m for a basic idea
@@ -30,7 +30,7 @@ void convertToSparse(ILPDenseData *denseData, ILPData *sparseData) {
 	sparseData->A = denseData->A.sparseView();
 	sparseData->b = denseData->b.sparseView();
 	sparseData->c = denseData->c.sparseView();
-	sparseData->A_eq = denseData->A_eq.sparseView();
+	sparseData->Eq = denseData->Eq.sparseView();
 	sparseData->c0 = denseData->c0;
 	Logger::getInstance().logInfo("Ending conversion from Dense to Sparse");
 }
@@ -100,10 +100,10 @@ void dataLoader::readFile(ILPData *sparseData)
 				mat += to_string(stod(input)) + "\n";
 			}
 		}
-		else if (cmd == "A_eq:") {
+		else if (cmd == "Eq:") {
 			for (int i = 0; i < x; i++) {
 				matrixFile >> input;
-				data.A_eq(i) = stod(input);
+				data.Eq(i) = stod(input);
 				mat += to_string(stod(input)) + "\n";
 			}
 		}

@@ -4,6 +4,7 @@
 #include "../linearAlgebra/linearAlgebra.h"
 
 Output solveRevisedPrimalSimplex(ILPData *data) {
+	
 	Logger::getInstance().logInfo("\n\n>>>> Revised Primal Simplex <<<<\n");
 	//Initializing variables
 	SpVec x_star;
@@ -26,18 +27,18 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 	n = data->A.cols();
 	m2 = data->c.rows();
 	n2 = data->c.cols();
-	m3 = data->A_eq.rows();
-	n3 = data->A_eq.cols();
+	m3 = data->Eq.rows();
+	n3 = data->Eq.cols();
 	m4 = data->b.rows();
 	n4 = data->b.cols();
 
 	SpMat A = data->A;
 	SpVec c = data->c;
 	SpVec b = data->b;
-	SpMat A_eq = data->A_eq;
+	SpVec Eq = data->Eq;
 	double c0 = data->c0;
 
-	if (A_eq.nonZeros() == 0)
+	if (Eq.nonZeros() == 0)
 		flag = 1;
 	else
 		flag = 0;
@@ -46,9 +47,9 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 	{
 		//run factorization
 		//check line # 129
-		int out = 0;
+		matrixIndexList *out = createIndexList();
 		SpMat j_b;
-		int infeasible = factorizationRREF_LP(&A, &b, &A_eq, 1e-10, &out, &j_b);
+		int infeasible = factorizationRREF_LP(&A, &b, &Eq, 1e-10, out, &j_b);
 
 		if (infeasible == 1) {
 			output.exitFlag = 1;
@@ -56,11 +57,13 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 		}
 
 		//remove redundant constraints here
+
+		freeIndexList(out);
 	}
 	else//some or all constraints are inequalities
 	{
 		//add slack variables
-		int slackVars = A_eq.nonZeros();
+		int slackVars = Eq.nonZeros();
 		//int slackVars = 2;
 		//for all elements at index m2+1 to m2+slackVars
 		addSlackToVector(&c, m2, slackVars);
@@ -69,12 +72,12 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 		//156 in matlab code
 		for (int i = 0; i < m3; i++) {
 			//'greater than or equal to' inequality constraint
-			if (A_eq.coeff(i, 0) == 1) {
+			if (Eq.coeff(i, 0) == 1) {
 				A.coeffRef(i, n + col_inc) = -1;
 				col_inc += 1;
 			}
 			//'less than or equal to' inequality constraint
-			else if (A_eq.coeff(i, 0) == -1) {
+			else if (Eq.coeff(i, 0) == -1) {
 				A.coeffRef(i, n + col_inc) = 1;
 				col_inc += 1;
 			}
@@ -86,16 +89,17 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 		}
 
 		//select an initial invertible basis using factorizationRREF_LP function
-		int out = 0;//not actually an int, contains indecies for all the redundant constraints
+		matrixIndexList *out = createIndexList();//not actually an int, contains indecies for all the redundant constraints
 		SpMat j_b;
-		int infeasible = factorizationRREF_LP(&A, &b, &A_eq, 1e-10, &out, &j_b);
+		int infeasible = factorizationRREF_LP(&A, &b, &Eq, 1e-10, out, &j_b);
 
 		if (infeasible == 1) {
 			output.exitFlag = 1;
+			freeIndexList(out);
 			return output;
 		}
 
-
+		freeIndexList(out);
 	}
 
 
