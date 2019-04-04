@@ -14,6 +14,10 @@ void pfi(SpMat *basisInv, SpVec *h_1, int r) {
 	//convert the generated dense identity matrix to a sparse matrix
 	dense_eta_inv.row(r) = VectorXd(eta);
 	SpMat eta_inv = dense_eta_inv.sparseView();
+
+	//use set identity and add in the vector instead
+	//eta_inv.setIdentity();
+	
 	//Update Basis Inverse
 	*basisInv = eta_inv * (*basisInv);
 }

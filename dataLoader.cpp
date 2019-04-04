@@ -66,9 +66,9 @@ void dataLoader::readFile(ILPData *sparseData)
 	matrixFile.open("inputData.txt");
 	Logger::getInstance().logInfo("Opened the data text file");
 	matrixFile >> input;
-	int x = stod(input);
+	int x = stoi(input);
 	matrixFile >> input;
-	int y = stod(input);
+	int y = stoi(input);
 	initDataMatricies(&data, y, x);
 	string mat;
 	while (matrixFile >> input) {

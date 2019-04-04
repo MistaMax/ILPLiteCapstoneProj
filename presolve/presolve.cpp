@@ -24,12 +24,12 @@ int presolve(ILPData *data)
 	//initialize the temporary variables
 	double c0;
 	MatrixXd A(m,n);
-	VectorXd b(m), c(n), A_eq(m);
+	VectorXd b(m), c(n), Eq(m);
 	//clone the Matrix data
 	A = data->A;
 	b = data->b;
 	c = data->c;
-	A_eq = data->A_eq;
+	Eq = data->Eq;
 	c0 = data->c0;
 	//save the initial size of A
 	int m_init = m;
@@ -44,7 +44,7 @@ int presolve(ILPData *data)
 
 	while (m_prev != m || n_prev != n) //figure out how to determine ~= in c++
 	{
-		infeasible = eliminateZeroRows(&A, &b, &A_eq);
+		infeasible = eliminateZeroRows(&A, &b, &Eq);
 		if (infeasible == 1) {
 			Logger::getInstance().logInfo("The problem is infeasible!");
 			return 1;
@@ -56,28 +56,28 @@ int presolve(ILPData *data)
 			return 2;
 		}
 
-		infeasible = eliminateKtonEqualityConstraints(&A, &c, &b, &A_eq, &c0);
+		infeasible = eliminateKtonEqualityConstraints(&A, &c, &b, &Eq, &c0);
 		if (infeasible == 1) {
 			Logger::getInstance().logInfo("The problem is infeasible!");
 			return 1;
 		}
 
-		infeasible = eliminateSingletonInequalityConstraints(&A, &c, &b, &A_eq);
+		infeasible = eliminateSingletonInequalityConstraints(&A, &c, &b, &Eq);
 		if (infeasible == 1) {
 			Logger::getInstance().logInfo("The problem is infeasible!");
 			return 1;
 		}
 
-		infeasible = eliminateDualSingletonInequalityConstraints(&A, &c, &b, &A_eq);
+		infeasible = eliminateDualSingletonInequalityConstraints(&A, &c, &b, &Eq);
 		if (infeasible == 1) {
 			Logger::getInstance().logInfo("The problem is infeasible!");
 			return 1;
 		}
 
-		eliminateImpliedFreeSingletonColumns(&A, &c, &b, &A_eq, c0);
+		eliminateImpliedFreeSingletonColumns(&A, &c, &b, &Eq, c0);
 		eliminateRedundantColumns(&A, &c
-			, &b, &A_eq);
-		eliminateImpliedBoundsonRows(&A, &b, &A_eq);
+			, &b, &Eq);
+		eliminateImpliedBoundsonRows(&A, &b, &Eq);
 
 		unbounded = eliminateZeroColumns(&A, &c);
 		if (unbounded == 1) {
@@ -100,9 +100,9 @@ int presolve(ILPData *data)
 
 	//add slack variables here
 
-	fullRank(&A, &A_temp, &b, &A_eq);
+	fullRank(&A, &A_temp, &b, &Eq);
 
-	infeasible = eliminateRedundantRows(&A, &b, &A_eq);
+	infeasible = eliminateRedundantRows(&A, &b, &Eq);
 
 	if (infeasible == 1) {
 		Logger::getInstance().logInfo("The problem is infeasible!");

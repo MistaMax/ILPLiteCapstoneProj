@@ -3,6 +3,8 @@
 #include <string>
 #include "../ILPData.h"
 #include "../Logger.h"
+#include "../matrixTools/matrixTools.h"
+#include "../linearAlgebra/linearAlgebra.h"
 
 typedef struct output {
 	SpVec x;

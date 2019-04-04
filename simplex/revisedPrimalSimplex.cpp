@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "revisedPrimalSimplex.h"
-#include "../matrixTools/matrixTools.h"
-#include "../linearAlgebra/linearAlgebra.h"
 
 Output solveRevisedPrimalSimplex(ILPData *data) {
 	
@@ -47,10 +45,11 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 	{
 		//run factorization
 		//check line # 129
-		matrixIndexList *out = createIndexList();
-		SpMat j_b;
-		int infeasible = factorizationRREF_LP(&A, &b, &Eq, 1e-10, out, &j_b);
-
+		//matrixIndexList *out = createIndexList();
+		SpVec out;
+		SpVec j_b;
+		int infeasible = factorizationRREFLP(&A, &b, &Eq, 10000000000, &out, &j_b);
+		//int infeasible = 0;
 		if (infeasible == 1) {
 			output.exitFlag = 1;
 			return output;
@@ -58,7 +57,7 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 
 		//remove redundant constraints here
 
-		freeIndexList(out);
+		//freeIndexList(out);
 	}
 	else//some or all constraints are inequalities
 	{
@@ -89,17 +88,20 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 		}
 
 		//select an initial invertible basis using factorizationRREF_LP function
-		matrixIndexList *out = createIndexList();//not actually an int, contains indecies for all the redundant constraints
-		SpMat j_b;
-		int infeasible = factorizationRREF_LP(&A, &b, &Eq, 1e-10, out, &j_b);
+		//matrixIndexList *out = createIndexList();//not actually an int, contains indecies for all the redundant constraints
+		SpVec j_b;
+		SpVec out;
+		int infeasible = factorizationRREFLP(&A, &b, &Eq, 10000000000, &out, &j_b);
+
+		//int infeasible = 0;
 
 		if (infeasible == 1) {
 			output.exitFlag = 1;
-			freeIndexList(out);
+			//freeIndexList(out);
 			return output;
 		}
 
-		freeIndexList(out);
+		//freeIndexList(out);
 	}
 
 

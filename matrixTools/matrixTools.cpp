@@ -114,3 +114,138 @@ void constructEqualityVector(SpVec *origVec, SpVec *newVec, SpVec *a0) {
 	}
 	*newVec = vec;
 }
+
+//focus:
+// 0 - column vector
+// 1 - row vector
+void extractVectorFromMatrix(SpMat *mat, SpVec *vec, int start, int end, int index, int focus) {
+	SpVec subVec(end - start + 1);
+	int subVecIndex = 0;
+
+	if (focus == COL_VECTOR) {
+		for (int i = start; i <= end; i++) {
+			if(mat->coeff(i,index) !=0 )
+				subVec.coeffRef(subVecIndex) = mat->coeff(i, index);
+			subVecIndex++;
+		}
+	}
+	else if (focus == ROW_VECTOR) {
+		for (int i = start; i <= end; i++) {
+			if (mat->coeff(index, i) != 0)
+				subVec.coeffRef(subVecIndex) = mat->coeff(index, i);
+			subVecIndex++;
+		}
+	}
+
+	*vec = subVec;
+}
+
+void alterMatrixColumnVector(SpMat *mat, int start, int end, int col, SpVec *insert)
+{
+	int vecIndex = 0;
+	for (int i = start; i <= end; i++) {
+		mat->coeffRef(i, col) = insert->coeff(vecIndex);
+		vecIndex++;
+	}
+	//refreshing after every insertion takes too much time
+	//refreshSparseMatrix(mat);
+}
+
+void alterMatrixRowVector(SpMat *mat, int start, int end, int row, SpVec *insert)
+{
+	int vecIndex = 0;
+	for (int i = start; i <= end; i++) {
+		mat->coeffRef(row, i) = insert->coeff(vecIndex);
+		vecIndex++;
+	}
+	//refreshing after every insertion takes too much time
+	//refreshSparseMatrix(mat);
+}
+
+void addZerosToColumnVector(SpMat *mat, int start, int end, int col)
+{
+	//insert zeros
+	for (int i = start; i <= end; i++) {
+		insertZeroIntoSparseMatrix(mat, i, col);
+	}
+	//efficiency idea, extract all the triplets that are not within the range
+	mat->makeCompressed();
+	//completely update the sparse matrix
+	//refreshing after every insertion takes too much time
+	//refreshSparseMatrix(mat);
+}
+
+void addZerosToRowVector(SpMat *mat, int start, int end, int row)
+{
+	//insert zeros
+	cout << "Matrix Before:" << endl << *mat << endl;
+	for (int i = start; i <= end; i++) {
+		insertZeroIntoSparseMatrix(mat, row, i);
+	}
+	cout << "Matrix With Added Zeros:" << endl << *mat << endl;
+	mat->makeCompressed();
+	cout << "Compressed Matrix With Zeros:" << endl << *mat << endl;
+	//completely update the sparse matrix
+	refreshSparseMatrix(mat);
+	cout << "Refreshed Sparse Matrix Without Zeros:" << endl << *mat << endl;
+}
+
+void printSparseMatrix(SpMat *mat) {
+	cout << "Row\tCol\tVal" << endl;
+	for (int k = 0; k < mat->outerSize(); ++k)
+	{
+		for (SparseMatrix<double>::InnerIterator it((*mat), k); it; ++it)
+		{
+			cout << 1 + it.row() << "\t"; // row index
+			cout << 1 + it.col() << "\t"; // col index (here it is equal to k)
+			cout << it.value() << endl;
+		}
+	}
+}
+
+void extractTripletsFromSparseMatrix(SpMat *mat, TripletVector *tVec)
+{
+	for (int k = 0; k < mat->outerSize(); ++k) {
+		for (SparseMatrix<double>::InnerIterator it(*mat, k); it; ++it) {
+			if(it.value() != 0)
+				tVec->push_back(T(it.row(),it.col(),it.value()));
+		}
+	}
+}
+
+void refreshSparseMatrix(SpMat *mat) {
+	TripletVector tVec;
+	extractTripletsFromSparseMatrix(mat, &tVec);
+	mat->setFromTriplets(tVec.begin(), tVec.end());
+}
+
+void insertValueIntoSparseMatrix(SpMat *mat, int row, int col, double val)
+{
+	mat->coeffRef(row, col) = val;
+}
+
+void insertZeroIntoSparseMatrix(SpMat *mat, int row, int col) {
+	mat->coeffRef(row, col) = 0;
+}
+
+void addValueToVectorEnd(SpVec *vec, double val)
+{
+	int m = vec->rows();
+	vec->conservativeResize(m+1);
+	vec->coeffRef(m) = val;
+}
+
+void removeZerosFromVector(SpVec *vec)
+{
+	SpVec nonZeroVector(vec->nonZeros());
+	int vectorIndex = 0;
+	for (int i = 0; i < vec->rows(); i++)
+	{
+		if (vec->coeff(i) != 0) {
+			nonZeroVector.coeffRef(vectorIndex) = vec->coeff(i);
+			vectorIndex++;
+		}
+		if (vectorIndex == vec->nonZeros())break;
+	}
+	*vec = nonZeroVector;
+}
