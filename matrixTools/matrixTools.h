@@ -53,3 +53,4 @@ void insertValueIntoSparseMatrix(SpMat *mat, int row, int col, double val);
 void insertZeroIntoSparseMatrix(SpMat *mat, int row, int col);
 void addValueToVectorEnd(SpVec *vec, double val);
 void removeZerosFromVector(SpVec *vec);
+void genSubMatrixFromIndecies(SpMat *orig, SpMat *sub, SpVec *indecies, int focus);

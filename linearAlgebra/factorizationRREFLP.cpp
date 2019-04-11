@@ -77,7 +77,6 @@ int factorizationRREFLP(SpMat *A, SpVec *b, SpVec *Eq, long tol, SpVec *out, SpV
 			extractVectorFromMatrix(&A_Eq, &A_EqSubVector, 0, m - 1, j, COL_VECTOR);
 			//find diff, line 95
 			removeValueFromVector(&A_EqSubVector, i);
-			removeZerosFromVector(&A_EqSubVector);
 			//possibly alter the for loop to use innner iterators or alter the vector
 			//to just contain non zero entities
 			for (int t = 0; t < A_EqSubVector.rows(); t++)
@@ -98,7 +97,11 @@ int factorizationRREFLP(SpMat *A, SpVec *b, SpVec *Eq, long tol, SpVec *out, SpV
 		}
 	}
 	//check for redundant and infeasible constraints, line 119
-	i = 0;
+	i = 1;
+	for (int h = i; h < m; i++) {
+		SpVec A_EqVec;
+
+	}
 	return infeasible;
 }
 
@@ -146,4 +149,5 @@ void adjustMatTol(SpMat *mat, double tol)
 				mat->coeffRef(it.row(), it.col()) = 0;
 		}
 	}
+	refreshSparseMatrix(mat);
 }

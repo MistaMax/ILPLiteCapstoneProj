@@ -66,78 +66,72 @@ void freeIndexList(matrixIndexList *list) {
 
 void findAllEqualities(SpVec *Eq, SpVec *a0) {
 	int m = Eq->rows() - Eq->nonZeros();
-	SpVec vec(m);
+	a0->resize(m);
 	int j = 0;
 	for (int i = 0; i < Eq->rows(); i++) {
 		if (j >= m)break;
 		if (Eq->coeff(i) == 0) {
-			vec.coeffRef(j) = Eq->coeff(i);
+			a0->coeffRef(j) = Eq->coeff(i);
 			j++;
 		}
 	}
-	*a0 = vec;
 }
 
 void findAllInequalities(SpVec *Eq, SpVec *a0) {
 	int m = Eq->nonZeros();
-	SpVec vec(m);
+	a0->resize(m);
 	int j = 0;
 	for (int i = 0; i < Eq->rows(); i++) {
 		if (j >= m)break;
 		if (Eq->coeff(i) != 0) {
-			vec.coeffRef(j) = Eq->coeff(i);
+			a0->coeffRef(j) = Eq->coeff(i);
 			j++;
 		}
 	}
-	*a0 = vec;
 }
 
 void constructEqualityMatrix(SpMat *origMat, SpMat *newMat, SpVec *a0) {
 	int m, n;
 	m = a0->rows();
 	n = origMat->cols();
-	SpMat mat(m, n);
+	newMat->resize(m, n);
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
-			mat.coeffRef(i, j) = origMat->coeff(a0->coeff(i), j);
+			newMat->coeffRef(i, j) = origMat->coeff(a0->coeff(i), j);
 		}
 	}
-	*newMat = mat;
 }
 
 void constructEqualityVector(SpVec *origVec, SpVec *newVec, SpVec *a0) {
 	int m;
 	m = a0->rows();
-	SpVec vec(m);
+	newVec->resize(m);
 	for (int i = 0; i < m; i++) {
-		vec.coeffRef(i) = origVec->coeff(a0->coeff(i));
+		newVec->coeffRef(i) = origVec->coeff(a0->coeff(i));
 	}
-	*newVec = vec;
 }
 
 //focus:
 // 0 - column vector
 // 1 - row vector
 void extractVectorFromMatrix(SpMat *mat, SpVec *vec, int start, int end, int index, int focus) {
-	SpVec subVec(end - start + 1);
+	vec->resize(end - start + 1);
 	int subVecIndex = 0;
 
 	if (focus == COL_VECTOR) {
 		for (int i = start; i <= end; i++) {
 			if(mat->coeff(i,index) !=0 )
-				subVec.coeffRef(subVecIndex) = mat->coeff(i, index);
+				vec->coeffRef(subVecIndex) = mat->coeff(i, index);
 			subVecIndex++;
 		}
 	}
 	else if (focus == ROW_VECTOR) {
 		for (int i = start; i <= end; i++) {
 			if (mat->coeff(index, i) != 0)
-				subVec.coeffRef(subVecIndex) = mat->coeff(index, i);
+				vec->coeffRef(subVecIndex) = mat->coeff(index, i);
 			subVecIndex++;
 		}
 	}
-
-	*vec = subVec;
 }
 
 void alterMatrixColumnVector(SpMat *mat, int start, int end, int col, SpVec *insert)
@@ -147,8 +141,7 @@ void alterMatrixColumnVector(SpMat *mat, int start, int end, int col, SpVec *ins
 		mat->coeffRef(i, col) = insert->coeff(vecIndex);
 		vecIndex++;
 	}
-	//refreshing after every insertion takes too much time
-	//refreshSparseMatrix(mat);
+	refreshSparseMatrix(mat);
 }
 
 void alterMatrixRowVector(SpMat *mat, int start, int end, int row, SpVec *insert)
@@ -158,8 +151,7 @@ void alterMatrixRowVector(SpMat *mat, int start, int end, int row, SpVec *insert
 		mat->coeffRef(row, i) = insert->coeff(vecIndex);
 		vecIndex++;
 	}
-	//refreshing after every insertion takes too much time
-	//refreshSparseMatrix(mat);
+	refreshSparseMatrix(mat);
 }
 
 void addZerosToColumnVector(SpMat *mat, int start, int end, int col)
@@ -170,9 +162,8 @@ void addZerosToColumnVector(SpMat *mat, int start, int end, int col)
 	}
 	//efficiency idea, extract all the triplets that are not within the range
 	mat->makeCompressed();
-	//completely update the sparse matrix
-	//refreshing after every insertion takes too much time
-	//refreshSparseMatrix(mat);
+	//remove zero references
+	refreshSparseMatrix(mat);
 }
 
 void addZerosToRowVector(SpMat *mat, int start, int end, int row)
@@ -212,11 +203,9 @@ void extractTripletsFromSparseMatrix(SpMat *mat, TripletVector *tVec)
 		}
 	}
 }
-
+//removes all the zero references from the sparse matrix
 void refreshSparseMatrix(SpMat *mat) {
-	TripletVector tVec;
-	extractTripletsFromSparseMatrix(mat, &tVec);
-	mat->setFromTriplets(tVec.begin(), tVec.end());
+	mat->prune(0,0);
 }
 
 void insertValueIntoSparseMatrix(SpMat *mat, int row, int col, double val)
@@ -237,7 +226,7 @@ void addValueToVectorEnd(SpVec *vec, double val)
 
 void removeZerosFromVector(SpVec *vec)
 {
-	SpVec nonZeroVector(vec->nonZeros());
+	/*SpVec nonZeroVector(vec->nonZeros());
 	int vectorIndex = 0;
 	for (int i = 0; i < vec->rows(); i++)
 	{
@@ -247,5 +236,32 @@ void removeZerosFromVector(SpVec *vec)
 		}
 		if (vectorIndex == vec->nonZeros())break;
 	}
-	*vec = nonZeroVector;
+	*vec = nonZeroVector;*/
+	vec->prune(0, 0);
+}
+
+void genSubMatrixFromIndecies(SpMat *orig, SpMat *sub, SpVec *indecies, int focus)
+{
+	int m, n;
+	if (focus == COL_VECTOR) {
+		m = orig->rows();
+		n = indecies->rows();
+		sub->resize(m, n);
+		for (int i = 0; i < n; i++) {
+			SpVec tmp;
+			extractVectorFromMatrix(orig, &tmp, 0, m - 1, indecies->coeff(i), focus);
+			alterMatrixColumnVector(sub, 0, m - 1, i, &tmp);
+		}
+	}
+	else if (focus == ROW_VECTOR)
+	{
+		m = indecies->rows();
+		n = orig->cols();
+		sub->resize(m, n);
+		for (int i = 0; i < m; i++) {
+			SpVec tmp;
+			extractVectorFromMatrix(orig, &tmp, 0, n - 1, indecies->coeff(i), focus);
+			alterMatrixRowVector(sub, 0, n - 1, i, &tmp);
+		}
+	}
 }

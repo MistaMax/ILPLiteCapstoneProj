@@ -3,7 +3,7 @@
 #include "basisUpdating/basisUpdating.h"
 #include "simplex/revisedPrimalSimplex.h"
 #include "matrixTools/matrixTools.h"
-
+#include "simplex/revisedSimplex_LU.h"
 
 using namespace std;
 
@@ -21,9 +21,32 @@ void runTests(ILPData *data) {
 	/*basisUpdate(&A, &(data->c), 1);
 	cout << "Data after update" << endl;
 	cout << data->A << endl;*/
-
+	revisedSimplexLUOut out;
+	revisedSimplexLU(data, &out);
 	//test variables init
 	SpMat A = data->A;
+	SpVec c = data->c;
+	SpVec b = data->b;
+	SpVec res;
+	//c.coeffRef(1) = 0;
+	//removeZerosFromVector(&c);
+	//res = c.cwiseProduct(b);
+	//res = b - c * 5;
+	//res = c.transpose() * b;
+	//cout << "Result of multiplying c by b:" << endl << res << endl;
+	//test pruning
+	/*cout << "A before prune: " << endl << A << endl;
+	A.coeffRef(0, 0) = 0;
+	A.coeffRef(0, 1) = 0;
+	refreshSparseMatrix(&A);
+	cout << "A after prune: " << endl << A << endl;
+	A.coeffRef(0, 0) = 1;
+	A.makeCompressed();
+	cout << "A after adding one in previous place: " << endl << A << endl;
+	data->c.coeffRef(1) = 0;
+	cout << "C before pruning: " << endl << data->c << endl;
+	removeZerosFromVector(&data->c);
+	cout << "C after pruning: " << endl << data->c << endl;*/
 
 	//alterMatrixTest test
 	/*cout << "Matrix Before:" << endl << A << endl;

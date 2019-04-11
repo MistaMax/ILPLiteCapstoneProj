@@ -3,5 +3,6 @@
 #include <string>
 #include "../ILPData.h"
 #include "../matrixTools/matrixTools.h"
+#include "linearAlgebra.h"
 //return the solution
-double matrixSolveLU(SpMat *A, SpVec *b, SpMat *P);
+void matrixSolveLU(SpMat *A, SpVec *b, SpVec *X, SpMat *P);

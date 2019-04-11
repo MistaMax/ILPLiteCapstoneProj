@@ -91,7 +91,7 @@ Output solveRevisedPrimalSimplex(ILPData *data) {
 		//matrixIndexList *out = createIndexList();//not actually an int, contains indecies for all the redundant constraints
 		SpVec j_b;
 		SpVec out;
-		int infeasible = factorizationRREFLP(&A, &b, &Eq, 10000000000, &out, &j_b);
+		int infeasible = factorizationRREFLP(&A, &b, &Eq, 1e-10, &out, &j_b);
 
 		//int infeasible = 0;
 

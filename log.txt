@@ -2,8 +2,8 @@ Starting Program
 Initialized data loader
 Opened the data text file
 A:
-5.000000 5.000000 
-2.000000 0.000000 
+2.000000 1.000000 
+1.000000 5.000000 
 
 b:
 20.000000
@@ -20,5 +20,3 @@ Eq:
 Closed the data text file
 Starting conversion from Dense to Sparse
 Ending conversion from Dense to Sparse
-Ending Program
-Deconstructing data loader
