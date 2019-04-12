@@ -110,7 +110,7 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 		matrixSolveLU(&transA_bv, &c_bv, &u, &P);
 		A_bv = transA_bv.transpose();
 		SpMat w_nb;
-		w_nb = c_nb.transpose() - u.transpose()*A_bv;
+		w_nb = c_nb.transpose() - u.transpose()*A_nb;
 		negRedCost = 0;
 		negRedCostIdx = 0;
 		if (findMinInMatrix(&w_nb, &negRedCostIdx) < -1*epsilon) {
@@ -165,7 +165,8 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 
 		cout << "Iter: " << iter << ", Fval: " << fVal << endl;
 	}
-
+	cout << "x" << endl << x << endl;
+	cout << "fVal" << endl << fVal << endl;
 	output->x = x;
 	output->fVal = fVal;
 	output->iter = iter;
@@ -189,8 +190,8 @@ double findMinInMatrix(SpMat *mat, int *index) {
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			if (mat->coeff(i, j) < min) {
-				min = mat->coeff(i, j);
+			if (mat->coeff(j, i) < min) {
+				min = mat->coeff(j, i);
 				*index = i;
 			}
 		}
