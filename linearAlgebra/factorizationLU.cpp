@@ -6,9 +6,10 @@ void getAbsMaxFromVector(SpVec *vec, double *maxVal, int *maxIdx);
 void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 {
 	int s;
-
-	if (A->rows() >= A->cols())
+	//determine focus
+	if (A->rows() >= A->cols()) {
 		s = A->rows();
+	}
 	else
 		s = A->cols();
 
@@ -29,7 +30,7 @@ void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 
 		extractVectorFromMatrix(U, &tmp, j, s - 1, j, COL_VECTOR);
 		getAbsMaxFromVector(&tmp, &maxVal, &maxIdx);
-		maxIdx = maxIdx + (j - 1);//CHECK IF YOU ACTUALLY NEED -1
+		maxIdx = maxIdx + j;//CHECK IF YOU ACTUALLY NEED -1
 
 		//pivot PV
 		t = PV.coeff(j);

@@ -20,5 +20,3 @@ Eq:
 Closed the data text file
 Starting conversion from Dense to Sparse
 Ending conversion from Dense to Sparse
-Ending Program
-Deconstructing data loader

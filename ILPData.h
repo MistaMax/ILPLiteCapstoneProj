@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 
+#define MAX_ITER 1000000
+
 using namespace Eigen;
 // values :
 //   data : data structure

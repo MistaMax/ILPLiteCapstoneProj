@@ -24,8 +24,8 @@ void runTests(ILPData *data) {
 
 
 	//revisedSimplex LU TEST
-	//revisedSimplexLUOut out;
-	//revisedSimplexLU(data, &out);
+	revisedSimplexLUOut out;
+	revisedSimplexLU(data, &out);
 
 	//test variables init
 	SpMat A = data->A;
