@@ -43,8 +43,11 @@ void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 		alterMatrixRowVector(L, 0, j - 1, j, &LNext);
 		alterMatrixRowVector(L, 0, j - 1, maxIdx, &LPrev);
 		//pivot U
-		//check line 50 of factorizationLU for U pivot context
-
+		SpVec UPrev, UNext;
+		extractVectorFromMatrix(U, &UPrev, j, U->cols() - 1, j, ROW_VECTOR);
+		extractVectorFromMatrix(U, &UNext, j, U->cols() - 1, maxIdx, ROW_VECTOR);
+		alterMatrixRowVector(U, j, U->cols() - 1, j, &UNext);
+		alterMatrixRowVector(U, j, U->cols() - 1, maxIdx, &UPrev);
 		//LU
 		L->coeffRef(j, j) = 1;
 		for (int z = (1 + j); z < U->rows(); z++) {
@@ -60,7 +63,7 @@ void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 
 	P->resize(s, s);
 	//check line 62 for P implementation
-
+	P->setIdentity();
 }
 
 
