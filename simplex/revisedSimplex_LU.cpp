@@ -13,6 +13,7 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 	SpVec x(A.rows());
 	double fVal = 0;
 	int iter = 0;
+
 	//saving the size
 	int m, n;
 	m = A.rows();
@@ -50,30 +51,44 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 	SpMat A_nb, A_bv;
 	SpVec c_nb, c_bv;
 	int newM=A.rows();
+
 	//indecies of the nonbasic variables
 	nb.resize(m);
 	
 	for (int i = 0; i < m; i++) {
 		nb.coeffRef(i) = i;
 	}
+
 	//number nonbasic variables
 	int numNonBasicVars = nb.rows();
 	int numBasicVars = bv.rows();
-	//basis matrix (123)
-	A_bv.resize(newM, numBasicVars);
-	for (int i = 0; i < numBasicVars; i++) {
-		SpVec tmp;
-		extractVectorFromMatrix(&A, &tmp, 0, newM - 1, bv.coeff(i), COL_VECTOR);
-		alterMatrixColumnVector(&A_bv, 0, newM - 1, i, &tmp);
-	}
-	//non-basic matrix
-	A_nb.resize(newM, numNonBasicVars);
-	for (int i = 0; i < numNonBasicVars; i++) {
-		SpVec tmp;
-		extractVectorFromMatrix(&A, &tmp, 0, newM - 1, nb.coeff(i), COL_VECTOR);
-		alterMatrixColumnVector(&A_nb, 0, newM - 1, i, &tmp);
-	}
 
+	//basis matrix (123)
+	genSubMatrixFromIndecies(&A, &A_bv, &bv, ROW_VECTOR);
+
+	//non-basic matrix
+	genSubMatrixFromIndecies(&A, &A_nb, &nb, ROW_VECTOR);
+
+	//basic and non-basic vector [c]
+	genSubVectorFromIndecies(&c, &c_nb, &nb);
+	genSubVectorFromIndecies(&c, &c_bv, &bv);
+
+	//initialized variables
+	cout << ">>>INITIALIZED DATA<<<" << endl;
+	cout << "A: " << endl << A << endl;
+	cout << "A_bv: " << endl << A_bv << endl;
+	cout << "A_nb: " << endl << A_nb << endl;
+	cout << "c: " << endl << c << endl;
+	cout << "c_nb: " << endl << c_nb << endl;
+	cout << "c_bv: " << endl << c_bv << endl;
+	cout << ">>>END INITIALIZED DATA<<<" << endl;
+
+	SpVec b_bar;
+	SpMat P;
+	matrixSolveLU(&A_bv, &b, &b_bar, &P);
+
+	fVal = c_bv.dot(b_bar);
+	cout << "FVAL: " << endl << fVal << endl;
 
 	output->x = x;
 	output->fVal = fVal;

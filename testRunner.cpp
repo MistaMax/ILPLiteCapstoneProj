@@ -21,19 +21,28 @@ void runTests(ILPData *data) {
 	/*basisUpdate(&A, &(data->c), 1);
 	cout << "Data after update" << endl;
 	cout << data->A << endl;*/
-	revisedSimplexLUOut out;
-	revisedSimplexLU(data, &out);
+
+
+	//revisedSimplex LU TEST
+	//revisedSimplexLUOut out;
+	//revisedSimplexLU(data, &out);
+
 	//test variables init
 	SpMat A = data->A;
 	SpVec c = data->c;
 	SpVec b = data->b;
 	SpVec res;
+
+	//res = A.block(0, 0, 1, 1).transpose();
+	//cout << "RES: " << endl << res << endl;
+	//common matrix math test
 	//c.coeffRef(1) = 0;
 	//removeZerosFromVector(&c);
 	//res = c.cwiseProduct(b);
 	//res = b - c * 5;
 	//res = c.transpose() * b;
 	//cout << "Result of multiplying c by b:" << endl << res << endl;
+
 	//test pruning
 	/*cout << "A before prune: " << endl << A << endl;
 	A.coeffRef(0, 0) = 0;

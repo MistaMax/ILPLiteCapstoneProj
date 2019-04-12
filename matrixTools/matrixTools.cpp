@@ -114,6 +114,7 @@ void constructEqualityVector(SpVec *origVec, SpVec *newVec, SpVec *a0) {
 //focus:
 // 0 - column vector
 // 1 - row vector
+// UPDATE: CONVERT THIS FUNCTION TO USE BLOCK OPERATIONS
 void extractVectorFromMatrix(SpMat *mat, SpVec *vec, int start, int end, int index, int focus) {
 	vec->resize(end - start + 1);
 	int subVecIndex = 0;
@@ -133,7 +134,7 @@ void extractVectorFromMatrix(SpMat *mat, SpVec *vec, int start, int end, int ind
 		}
 	}
 }
-
+// UPDATE: CONVERT THIS FUNCTION TO USE BLOCK OPERATIONS
 void alterMatrixColumnVector(SpMat *mat, int start, int end, int col, SpVec *insert)
 {
 	int vecIndex = 0;
@@ -143,7 +144,7 @@ void alterMatrixColumnVector(SpMat *mat, int start, int end, int col, SpVec *ins
 	}
 	refreshSparseMatrix(mat);
 }
-
+// UPDATE: CONVERT THIS FUNCTION TO USE BLOCK OPERATIONS
 void alterMatrixRowVector(SpMat *mat, int start, int end, int row, SpVec *insert)
 {
 	int vecIndex = 0;
@@ -226,17 +227,6 @@ void addValueToVectorEnd(SpVec *vec, double val)
 
 void removeZerosFromVector(SpVec *vec)
 {
-	/*SpVec nonZeroVector(vec->nonZeros());
-	int vectorIndex = 0;
-	for (int i = 0; i < vec->rows(); i++)
-	{
-		if (vec->coeff(i) != 0) {
-			nonZeroVector.coeffRef(vectorIndex) = vec->coeff(i);
-			vectorIndex++;
-		}
-		if (vectorIndex == vec->nonZeros())break;
-	}
-	*vec = nonZeroVector;*/
 	vec->prune(0, 0);
 }
 
@@ -263,5 +253,14 @@ void genSubMatrixFromIndecies(SpMat *orig, SpMat *sub, SpVec *indecies, int focu
 			extractVectorFromMatrix(orig, &tmp, 0, n - 1, indecies->coeff(i), focus);
 			alterMatrixRowVector(sub, 0, n - 1, i, &tmp);
 		}
+	}
+}
+
+void genSubVectorFromIndecies(SpVec *orig, SpVec *sub, SpVec *indecies) {
+	int m = indecies->rows();
+	sub->resize(m);
+	for (int i = 0; i < m; i++) {
+		if(orig->coeff(indecies->coeff(i)) != 0)
+			sub->coeffRef(i) = orig->coeff(indecies->coeff(i));
 	}
 }

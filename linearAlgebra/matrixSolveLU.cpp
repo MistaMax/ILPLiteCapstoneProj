@@ -9,9 +9,10 @@ void matrixSolveLU(SpMat *A, SpVec *b, SpVec *X, SpMat *P)
 
 	SpMat L, U;
 	factorizationLU(A, &L, &U, P);
-
-	SpVec Y(numRows), XTmp(numRows);
+	SpVec Y(numRows);
+	X->resize(numRows);
 	SpVec rhs;
+	rhs = (*P) * (*b);
 
 	for (int i = 0; i < numCols; i++) {
 		Y.coeffRef(i) = rhs.coeff(i);
@@ -21,11 +22,9 @@ void matrixSolveLU(SpMat *A, SpVec *b, SpVec *X, SpMat *P)
 	}
 
 	for (int i=numCols-1;i>=0; i--) {
-		XTmp.coeffRef(i) = Y.coeff(i) / U.coeff(i, i);
+		X->coeffRef(i) = Y.coeff(i) / U.coeff(i, i);
 		SpVec tmp;
 		extractVectorFromMatrix(&U, &tmp, 0, U.rows() - 1, i, COL_VECTOR);
-		Y = Y - (XTmp.coeff(i)*tmp);
+		Y = Y - (X->coeff(i)*tmp);
 	}
-
-	*X = XTmp;
 }

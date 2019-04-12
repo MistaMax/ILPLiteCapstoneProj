@@ -3,6 +3,7 @@
 #include <string>
 #include "../ILPData.h"
 #include "../matrixTools/matrixTools.h"
+#include "../linearAlgebra/matrixSolveLU.h"
 
 typedef struct revisedSimplexLUOut {
 	SpVec x;
