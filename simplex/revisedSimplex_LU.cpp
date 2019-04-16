@@ -26,12 +26,12 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 		//do stuff here 96
 		SpMat A_id(m, n);
 		A_id.setIdentity();
-		A.conservativeResize(m + m, n);
+		A.conservativeResize(m, n+n);
 
-		for (int i = m, j = 0; i < 2 * m; i++, j++) {
+		for (int i = n, j = 0; i < 2 * n; i++, j++) {
 			SpVec tmp;
-			extractVectorFromMatrix(&A_id, &tmp, 0, n - 1, j, ROW_VECTOR);
-			alterMatrixRowVector(&A, 0, n - 1, i, &tmp);
+			extractVectorFromMatrix(&A_id, &tmp, 0, m - 1, j, COL_VECTOR);
+			alterMatrixColumnVector(&A, 0, m - 1, i, &tmp);
 		}
 
 		c.conservativeResize(m + m);
@@ -67,17 +67,17 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 	int numBasicVars = bv.rows();
 
 	//basis matrix (123)
-	genSubMatrixFromIndecies(&A, &A_bv, &bv, ROW_VECTOR);
+	genSubMatrixFromIndecies(&A, &A_bv, &bv, COL_VECTOR);
 
 	//non-basic matrix
-	genSubMatrixFromIndecies(&A, &A_nb, &nb, ROW_VECTOR);
+	genSubMatrixFromIndecies(&A, &A_nb, &nb, COL_VECTOR);
 
 	//basic and non-basic vector [c]
 	genSubVectorFromIndecies(&c, &c_nb, &nb);
 	genSubVectorFromIndecies(&c, &c_bv, &bv);
 
 	//initialized variables
-	cout << ">>>INITIALIZED DATA<<<" << endl;
+	/*cout << ">>>INITIALIZED DATA<<<" << endl;
 	cout << "A: " << endl << A << endl;
 	cout << "A_bv: " << endl << A_bv << endl;
 	cout << "A_nb: " << endl << A_nb << endl;
@@ -85,35 +85,36 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 	cout << "c_nb: " << endl << c_nb << endl;
 	cout << "c_bv: " << endl << c_bv << endl;
 	cout << ">>>END INITIALIZED DATA<<<" << endl;
-
+	*/
 	SpVec b_bar;
 	SpMat P;
 
 	matrixSolveLU(&A_bv, &b, &b_bar, &P);
 	fVal = c_bv.dot(b_bar);
-
+	/*
 	cout << "P: " << endl << P << endl;
 	cout << "B_Bar: " << endl << b_bar << endl;
 	cout << "A_bv:" << endl << A_bv << endl;
 	cout << "FVAL: " << endl << fVal << endl;
-
+	*/
 	int minRatioIdx = 1, negRedCostIdx = 0;
 	iter = 0;
 	double negRedCost = -1;
 	while (true) {
 		if (negRedCost >= 0 || iter >= MAX_ITER)break;
 		iter++;
-
 		SpMat transA_bv = A_bv.transpose();
 		SpVec u;
 		//LU DECOMPOSITION SOLVE
 		matrixSolveLU(&transA_bv, &c_bv, &u, &P);
 		A_bv = transA_bv.transpose();
 		SpMat w_nb;
+
 		w_nb = c_nb.transpose() - u.transpose()*A_nb;
 		negRedCost = 0;
 		negRedCostIdx = 0;
-		if (findMinInMatrix(&w_nb, &negRedCostIdx) < -1*epsilon) {
+		int negRedIdxTmp;
+		if (findMinInMatrix(&w_nb, &negRedIdxTmp) < -1*epsilon) {
 			negRedCost = findMinInMatrix(&w_nb, &negRedCostIdx);
 		}
 		else
@@ -124,8 +125,9 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 			SpVec a_bar, negRedCostA_nb;
 			extractVectorFromMatrix(&A_nb, &negRedCostA_nb, 0, A_nb.rows() - 1, negRedCostIdx, COL_VECTOR);
 			matrixSolveLU(&A_bv, &negRedCostA_nb, &a_bar, &P);
-			double minRatioVal = b_bar.coeff(0)/a_bar.coeff(0);
-			for (int i = 1; i < numRows; i++) {
+			double minRatioVal = INFINITY;
+			//minRatioIdx = 0;
+			for (int i = 0; i < numRows; i++) {
 				if (a_bar.coeff(i) > epsilon) {
 					if (b_bar.coeff(i) / a_bar.coeff(i) < minRatioVal) {
 						minRatioVal = b_bar.coeff(i) / a_bar.coeff(i);
@@ -133,7 +135,6 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 					}
 				}
 			}
-
 			//Step 4: Pivot and update
 			b_bar = b_bar - minRatioVal * a_bar;
 			b_bar.coeffRef(minRatioIdx) = minRatioVal;
@@ -144,10 +145,10 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 			nb.coeffRef(negRedCostIdx) = tmpIdx;
 
 			//update Basic and Non-Basic matricies
-			genSubMatrixFromIndecies(&A, &A_bv, &bv, ROW_VECTOR);
+			genSubMatrixFromIndecies(&A, &A_bv, &bv, COL_VECTOR);
 
 			//non-basic matrix
-			genSubMatrixFromIndecies(&A, &A_nb, &nb, ROW_VECTOR);
+			genSubMatrixFromIndecies(&A, &A_nb, &nb, COL_VECTOR);
 
 			//basic and non-basic vector [c]
 			genSubVectorFromIndecies(&c, &c_nb, &nb);
@@ -162,7 +163,6 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 
 		//get the objective value
 		fVal = c_bv.dot(b_bar);
-
 		cout << "Iter: " << iter << ", Fval: " << fVal << endl;
 	}
 	cout << "x" << endl << x << endl;

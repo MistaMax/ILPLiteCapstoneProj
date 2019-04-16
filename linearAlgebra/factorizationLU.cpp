@@ -43,13 +43,13 @@ void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 		extractVectorFromMatrix(L, &LNext, 0, j - 1, maxIdx, ROW_VECTOR);
 		alterMatrixRowVector(L, 0, j - 1, j, &LNext);
 		alterMatrixRowVector(L, 0, j - 1, maxIdx, &LPrev);
-		//pivot U
+		//pivot U, CHECK THIS
 		SpVec UPrev, UNext;
 		extractVectorFromMatrix(U, &UPrev, j, U->cols() - 1, j, ROW_VECTOR);
 		extractVectorFromMatrix(U, &UNext, j, U->cols() - 1, maxIdx, ROW_VECTOR);
 		alterMatrixRowVector(U, j, U->cols() - 1, j, &UNext);
 		alterMatrixRowVector(U, j, U->cols() - 1, maxIdx, &UPrev);
-		//LU
+		//LU CHECK THIS
 		L->coeffRef(j, j) = 1;
 		for (int z = (1 + j); z < U->rows(); z++) {
 			double c = U->coeff(z, j) / U->coeff(j, j);
@@ -79,44 +79,3 @@ void getAbsMaxFromVector(SpVec *vec, double *maxVal, int *maxIdx) {
 		}
 	}
 }
-
-/*int factorization(MatrixXd A, MatrixXd* L, MatrixXd* U, MatrixXd* P) {
-	int s = A.innerSize();
-	*U = A;
-	MatrixXd mat(s, s);
-	*L = mat;
-	Index ind;
-	//Index t;
-	MatrixXd t;
-	MatrixXd PV = mat.transpose();
-	for (int j = 0; j < s; j++) {
-		U->col(j).cwiseAbs.maxCoeff(&ind);
-		ind = ind + (j - 1);
-
-		t = PV.col(j);
-		PV.col(j) = PV.col(ind);
-		PV.col(ind) = t;
-
-		t = L->block(j, 1, j, j - 1);
-		L->block(j, 1, L->cols(), j - 1) = L->block(ind, 1, L->cols(), j - 1);
-		L->block(ind, 1, L->cols(), j - 1) = t;
-
-		// Apr 8th: may be slightly wrong, adjustment needed
-		t = U->block(j, j, U->cols() - j, 1);
-		U->block(j, j, U->cols() - j, 1) = U->block(ind, j, U->cols() - j, 1);
-		U->block(ind, j, U->cols() - j, 1) = t;
-
-		// LU
-
-		(*L)(j,j) = 1;
-		//Could be U->outerSize
-		for (int i = j + 1; i < U->cols(); i++) {
-
-		}
-		
-
-		
-
-		
-	}
-}*/
