@@ -2,6 +2,9 @@
 #include "pch.h"
 #include "factorizationLU.h"
 void getAbsMaxFromVector(SpVec *vec, double *maxVal, int *maxIdx);
+void PVPivot(double *t, SpVec *PV, int maxIdx, int j);
+void LPivot(SpMat *L, int maxIdx, int j);
+void UPivot(SpMat *U, int maxIdx, int j);
 //check for bound restrictions
 void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 {
@@ -33,22 +36,14 @@ void factorizationLU(SpMat *A, SpMat *L, SpMat *U, SpMat *P)
 		maxIdx = maxIdx + j;//CHECK IF YOU ACTUALLY NEED -1
 
 		//pivot PV
-		t = PV.coeff(j);
-		PV.coeffRef(j) = PV.coeff(maxIdx);
-		PV.coeffRef(maxIdx) = t;
+		PVPivot(&t, &PV, maxIdx, j);
 
 		//pivot L
-		SpVec LPrev, LNext;
-		extractVectorFromMatrix(L, &LPrev, 0, j - 1, j, ROW_VECTOR);//may need to be -2
-		extractVectorFromMatrix(L, &LNext, 0, j - 1, maxIdx, ROW_VECTOR);
-		alterMatrixRowVector(L, 0, j - 1, j, &LNext);
-		alterMatrixRowVector(L, 0, j - 1, maxIdx, &LPrev);
+		LPivot(L, maxIdx, j);
+
 		//pivot U, CHECK THIS
-		SpVec UPrev, UNext;
-		extractVectorFromMatrix(U, &UPrev, j, U->cols() - 1, j, ROW_VECTOR);
-		extractVectorFromMatrix(U, &UNext, j, U->cols() - 1, maxIdx, ROW_VECTOR);
-		alterMatrixRowVector(U, j, U->cols() - 1, j, &UNext);
-		alterMatrixRowVector(U, j, U->cols() - 1, maxIdx, &UPrev);
+		UPivot(U, maxIdx, j);
+
 		//LU CHECK THIS
 		L->coeffRef(j, j) = 1;
 		for (int z = (1 + j); z < U->rows(); z++) {
@@ -78,4 +73,25 @@ void getAbsMaxFromVector(SpVec *vec, double *maxVal, int *maxIdx) {
 			*maxIdx = i;
 		}
 	}
+}
+
+void PVPivot(double *t, SpVec *PV, int maxIdx, int j) {
+	*t = PV->coeff(j);
+	PV->coeffRef(j) = PV->coeff(maxIdx);
+	PV->coeffRef(maxIdx) = *t;
+}
+
+void LPivot(SpMat *L, int maxIdx, int j) {
+	SpVec LPrev, LNext;
+	extractVectorFromMatrix(L, &LPrev, 0, j - 1, j, ROW_VECTOR);//may need to be -2
+	extractVectorFromMatrix(L, &LNext, 0, j - 1, maxIdx, ROW_VECTOR);
+	alterMatrixRowVector(L, 0, j - 1, j, &LNext);
+	alterMatrixRowVector(L, 0, j - 1, maxIdx, &LPrev);
+}
+void UPivot(SpMat *U, int maxIdx, int j) {
+	SpVec UPrev, UNext;
+	extractVectorFromMatrix(U, &UPrev, j, U->cols() - 1, j, ROW_VECTOR);
+	extractVectorFromMatrix(U, &UNext, j, U->cols() - 1, maxIdx, ROW_VECTOR);
+	alterMatrixRowVector(U, j, U->cols() - 1, j, &UNext);
+	alterMatrixRowVector(U, j, U->cols() - 1, maxIdx, &UPrev);
 }
