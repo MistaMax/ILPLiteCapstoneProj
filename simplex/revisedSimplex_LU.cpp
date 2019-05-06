@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "revisedSimplex_LU.h"
-
+#include "../Logger.h"
 using namespace std;
 
 double findMinInVector(SpVec *vec);
@@ -8,6 +8,7 @@ double findMinInMatrix(SpMat *mat, int *index);
 
 void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 {
+	Logger::getInstance().logInfo(">>>Revised Simplex<<<");
 	SpMat A = data->A;
 	SpVec c = data->c;
 	SpVec b = data->b;
@@ -84,19 +85,19 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 	cout << "c: " << endl << c << endl;
 	cout << "c_nb: " << endl << c_nb << endl;
 	cout << "c_bv: " << endl << c_bv << endl;
-	cout << ">>>END INITIALIZED DATA<<<" << endl;
-	*/
+	cout << ">>>END INITIALIZED DATA<<<" << endl;*/
+	
 	SpVec b_bar;
 	SpMat P;
 
 	matrixSolveLU(&A_bv, &b, &b_bar, &P);
 	fVal = c_bv.dot(b_bar);
-	/*
-	cout << "P: " << endl << P << endl;
+	
+	/*cout << "P: " << endl << P << endl;
 	cout << "B_Bar: " << endl << b_bar << endl;
 	cout << "A_bv:" << endl << A_bv << endl;
-	cout << "FVAL: " << endl << fVal << endl;
-	*/
+	cout << "FVAL: " << endl << fVal << endl;*/
+	
 	int minRatioIdx = 1, negRedCostIdx = 0;
 	iter = 0;
 	double negRedCost = -1;
@@ -165,11 +166,19 @@ void revisedSimplexLU(ILPData *data, revisedSimplexLUOut *output)
 		fVal = c_bv.dot(b_bar);
 		cout << "Iter: " << iter << ", Fval: " << fVal << endl;
 	}
-	cout << "x" << endl << x << endl;
-	cout << "fVal" << endl << fVal << endl;
+	//show solution resized
+	x.conservativeResize(A_bv.rows());
+	//Print stuff
+	cout << "Solution:" << endl << "[ ";
+	for (int i = 0; i < x.rows(); i++) {
+		cout << x.coeff(i) << " ";
+	}
+	cout << "]" << endl;
+	cout << "fVal:" << endl << fVal << endl;
 	output->x = x;
 	output->fVal = fVal;
 	output->iter = iter;
+	Logger::getInstance().logInfo(">>>Revised Simplex End<<<");
 }
 
 double findMinInVector(SpVec *vec) {
